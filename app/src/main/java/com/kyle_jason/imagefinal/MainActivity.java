@@ -41,13 +41,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
-        int viewId = view.getId();
-
-        if (viewId == R.id.cameraButton) {
+        if (view.getId() == R.id.cameraButton) {
             takePicture();
-        } else if (viewId == R.id.drawButton) {
-            //open blank canvas for drawing
-        } else if (viewId == R.id.openButton) {
+        } else if (view.getId() == R.id.drawButton) {
+            openPaint();
+        } else if (view.getId() == R.id.openButton) {
             openImage();
         } else {
             throw new RuntimeException("Not Implemented");
@@ -71,6 +69,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    private void openPaint() {
+        //open a blank canvas to draw on
+    }
+
     private void openImage() {
         Intent intent = new Intent();
         intent.setType("image/*");
@@ -81,12 +83,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == TAKE_PICTURE_CODE && resultCode == RESULT_OK) {
+            //need to get full size image - currently gets image thumbnail
             Bundle extras = data.getExtras();
             imageBitmap = (Bitmap) extras.get("data");
             imageView.setImageBitmap(imageBitmap);
         } else if (requestCode == OPEN_IMAGE_CODE && resultCode == RESULT_OK) {
             Uri imageUri = data.getData();
             try {
+                //need to rotate image as necessary
                 InputStream inputStream = getContentResolver().openInputStream(imageUri);
                 imageBitmap = BitmapFactory.decodeStream(inputStream);
                 imageView.setImageBitmap(imageBitmap);
