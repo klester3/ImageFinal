@@ -3,31 +3,25 @@ package com.kyle_jason.imagefinal;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ContentUris;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.CursorLoader;
 import android.support.v4.content.FileProvider;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -35,8 +29,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private final int TAKE_PICTURE_CODE = 1;
     private final int OPEN_IMAGE_CODE = 2;
-    private ImageView imageView;
-    private Bitmap imageBitmap;
     private String photoPath;
 
     @Override
@@ -49,8 +41,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.cameraButton).setOnClickListener(this);
         findViewById(R.id.drawButton).setOnClickListener(this);
         findViewById(R.id.openButton).setOnClickListener(this);
-
-        imageView = findViewById(R.id.imageView);
     }
 
     @Override
@@ -105,7 +95,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void openPaint() {
-        //open a blank canvas to draw on
+        Intent drawingIntent = new Intent(getApplicationContext(), DrawActivity.class);
+        startActivity(drawingIntent);
     }
 
     private void openImage() {
@@ -113,37 +104,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(intent, "Select Image"), OPEN_IMAGE_CODE);
-    }
-
-    private void setImageOrientation(String fileName) {
-        try {
-            ExifInterface ei = new ExifInterface(fileName);
-            int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
-                    ExifInterface.ORIENTATION_UNDEFINED);
-
-            switch (orientation) {
-                case ExifInterface.ORIENTATION_ROTATE_90:
-                    imageBitmap = rotateImage(imageBitmap, 90);
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_180:
-                    imageBitmap = rotateImage(imageBitmap, 180);
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_270:
-                    imageBitmap = rotateImage(imageBitmap, 270);
-                    break;
-                default:
-                    break;
-            }
-        } catch (IOException e) {
-            Log.i("IMG_ERROR", e.getMessage());
-        }
-    }
-
-    private Bitmap rotateImage(Bitmap bitmap, float degrees) {
-        Matrix matrix = new Matrix();
-        matrix.postRotate(degrees);
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(),
-                matrix, true);
     }
 
     private String getFilePath(Uri uri) {
@@ -201,19 +161,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == TAKE_PICTURE_CODE && resultCode == RESULT_OK) {
-            imageBitmap = BitmapFactory.decodeFile(photoPath);
-            setImageOrientation(photoPath);
-            imageView.setImageBitmap(imageBitmap);
+            openEditorActivity(photoPath);
         } else if (requestCode == OPEN_IMAGE_CODE && resultCode == RESULT_OK) {
             Uri imageUri = data.getData();
-            try {
-                InputStream inputStream = getContentResolver().openInputStream(imageUri);
-                imageBitmap = BitmapFactory.decodeStream(inputStream);
-                setImageOrientation(getFilePath(imageUri));
-                imageView.setImageBitmap(imageBitmap);
-            } catch (FileNotFoundException e) {
-                Log.i("IMG_ERROR", e.getMessage());
-            }
+            openEditorActivity(getFilePath(imageUri));
         }
+    }
+
+    private void openEditorActivity(String imagePath) {
+        Intent editorIntent = new Intent(getApplicationContext(), EditorActivity.class);
+        editorIntent.putExtra("imagePath", imagePath);
+        startActivity(editorIntent);
+    }
+
+    @Override
+    public void onBackPressed() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Exit?");
+        builder.setMessage("Are you sure?");
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                MainActivity.super.onBackPressed();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        builder.show();
     }
 }
