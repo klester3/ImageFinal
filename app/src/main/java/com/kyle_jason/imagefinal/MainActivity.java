@@ -7,16 +7,22 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -24,6 +30,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private final int OPEN_IMAGE_CODE = 2;
     private ImageView imageView;
     private Bitmap imageBitmap;
+    private String photoPath;
+    private Uri imageUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,8 +73,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void takePicture() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takePictureIntent, TAKE_PICTURE_CODE);
+            File imageFile = null;
+            try {
+                imageFile = createImageFile();
+            } catch (IOException e) {
+                Log.i("IMG_ERROR", e.getMessage());
+            }
+            if (imageFile != null) {
+                Uri imageUri = FileProvider.getUriForFile(this,
+                        "com.kyle_jason.imagefinal", imageFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                startActivityForResult(takePictureIntent, TAKE_PICTURE_CODE);
+            }
         }
+    }
+
+    private File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp;
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
+
+        photoPath = image.getAbsolutePath();
+        return image;
     }
 
     private void openPaint() {
@@ -83,12 +112,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == TAKE_PICTURE_CODE && resultCode == RESULT_OK) {
-            //need to get full size image - currently gets image thumbnail
-            Bundle extras = data.getExtras();
-            imageBitmap = (Bitmap) extras.get("data");
+            //need to rotate image as necessary
+            imageBitmap = BitmapFactory.decodeFile(photoPath);
             imageView.setImageBitmap(imageBitmap);
         } else if (requestCode == OPEN_IMAGE_CODE && resultCode == RESULT_OK) {
-            Uri imageUri = data.getData();
+            imageUri = data.getData();
             try {
                 //need to rotate image as necessary
                 InputStream inputStream = getContentResolver().openInputStream(imageUri);
