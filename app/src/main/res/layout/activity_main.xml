@@ -21,6 +21,7 @@
         android:id="@+id/drawButton"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
         android:background="@null"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/cameraButton"
@@ -32,11 +33,11 @@
         android:id="@+id/cameraButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
         android:background="@null"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline2"
         app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toBottomOf="@+id/imageView2"
         app:srcCompat="@drawable/camera_button" />
 
     <android.support.constraint.Guideline
@@ -57,6 +58,7 @@
         android:id="@+id/openButton"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
         android:background="@null"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -68,9 +70,10 @@
         android:id="@+id/imageView2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/cameraButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/break_bar"
-        tools:layout_editor_absoluteY="574dp" />
+        app:srcCompat="@drawable/break_bar" />
 
 </android.support.constraint.ConstraintLayout>
