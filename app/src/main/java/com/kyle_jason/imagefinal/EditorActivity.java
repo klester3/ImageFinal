@@ -289,7 +289,7 @@ public class EditorActivity extends AppCompatActivity {
 
         Random random = new Random();
 
-        int index;
+        int index = 0;
 
         for (int y = 0; y < imageHeight; y++) {
             for (int x = 0; x < imageWidth; x++) {
