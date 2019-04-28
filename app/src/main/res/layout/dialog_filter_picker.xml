@@ -22,14 +22,14 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/black_white"
+        android:id="@+id/gray_scale"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="25dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="25dp"
         android:background="#01f"
-        android:text="Black &amp; White"
+        android:text="Grayscale"
         android:textColor="#ccc"
         android:textSize="16dp"
         app:layout_constraintEnd_toEndOf="parent"

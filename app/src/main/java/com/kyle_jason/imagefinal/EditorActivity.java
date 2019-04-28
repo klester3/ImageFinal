@@ -213,7 +213,7 @@ public class EditorActivity extends AppCompatActivity {
                         filmgrainEffect();
                     }
                 });
-        filterPickerDialog.findViewById(R.id.black_white).
+        filterPickerDialog.findViewById(R.id.gray_scale).
                 setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -289,7 +289,7 @@ public class EditorActivity extends AppCompatActivity {
 
         Random random = new Random();
 
-        int index = 0;
+        int index;
 
         for (int y = 0; y < imageHeight; y++) {
             for (int x = 0; x < imageWidth; x++) {
