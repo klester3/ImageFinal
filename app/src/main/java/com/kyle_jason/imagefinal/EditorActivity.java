@@ -59,9 +59,6 @@ public class EditorActivity extends AppCompatActivity {
         imageBitmap = BitmapFactory.decodeFile(imagePath);
         setImageOrientation(imagePath);
         imageView.setImageBitmap(imageBitmap);
-
-        imageWidth = imageBitmap.getWidth();
-        imageHeight = imageBitmap.getHeight();
     }
 
     private void setImageOrientation(String fileName) {
@@ -101,7 +98,9 @@ public class EditorActivity extends AppCompatActivity {
 
         menu.add(0, 0, 0, "Crop");
         menu.add(0, 1, 0, "Filter");
-        menu.add(0, 2, 0, "Save");
+        menu.add(0, 2, 0, "Brightness");
+        menu.add(0, 3, 0, "Contrast");
+        menu.add(0, 4, 0, "Save");
 
         return true;
     }
@@ -116,6 +115,12 @@ public class EditorActivity extends AppCompatActivity {
                 showFilterDialog();
                 return true;
             case 2:
+                showBrightnessDialog();
+                return true;
+            case 3:
+                showContrastDialog();
+                return true;
+            case 4:
                 Bitmap bitmap = imageBitmap;
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss",
                         Locale.US);
@@ -195,6 +200,62 @@ public class EditorActivity extends AppCompatActivity {
         return Uri.parse(path);
     }
 
+    private void showBrightnessDialog() {
+        LayoutInflater inflater = getLayoutInflater();
+        View view = inflater.inflate(R.layout.dialog_adjust_brightness, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(view);
+        builder.setCancelable(true);
+        final AlertDialog brightnessDialog = builder.create();
+        brightnessDialog.show();
+        brightnessDialog.getWindow().setBackgroundDrawable(new ColorDrawable(
+                Color.TRANSPARENT));
+        brightnessDialog.findViewById(R.id.increase_brightness).
+                setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        brightnessDialog.dismiss();
+                        changeBrightness(20);
+                    }
+                });
+        brightnessDialog.findViewById(R.id.decrease_brightness).
+                setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        brightnessDialog.dismiss();
+                        changeBrightness(-20);
+                    }
+                });
+    }
+
+    private void showContrastDialog() {
+        LayoutInflater inflater = getLayoutInflater();
+        View view = inflater.inflate(R.layout.dialog_adjust_contrast, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(view);
+        builder.setCancelable(true);
+        final AlertDialog contrastDialog = builder.create();
+        contrastDialog.show();
+        contrastDialog.getWindow().setBackgroundDrawable(new ColorDrawable(
+                Color.TRANSPARENT));
+        contrastDialog.findViewById(R.id.increase_contrast).
+                setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        contrastDialog.dismiss();
+                        changeContrast(20);
+                    }
+                });
+        contrastDialog.findViewById(R.id.decrease_contrast).
+                setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        contrastDialog.dismiss();
+                        changeContrast(-10);
+                    }
+                });
+    }
+
     private void showFilterDialog() {
         LayoutInflater inflater = getLayoutInflater();
         View view = inflater.inflate(R.layout.dialog_filter_picker, null);
@@ -219,6 +280,22 @@ public class EditorActivity extends AppCompatActivity {
                     public void onClick(View view) {
                         filterPickerDialog.dismiss();
                         grayscaleEffect();
+                    }
+                });
+        filterPickerDialog.findViewById(R.id.invert_color).
+                setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        filterPickerDialog.dismiss();
+                        invertEffect();
+                    }
+                });
+        filterPickerDialog.findViewById(R.id.sepia_tone).
+                setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        filterPickerDialog.dismiss();
+                        sepiaEffect();
                     }
                 });
     }
@@ -252,6 +329,9 @@ public class EditorActivity extends AppCompatActivity {
     }
 
     private void grayscaleEffect() {
+        imageWidth = imageBitmap.getWidth();
+        imageHeight = imageBitmap.getHeight();
+
         final double gsRed = 0.299;
         final double gsBlue = 0.587;
         final double gsGreen = 0.114;
@@ -281,6 +361,9 @@ public class EditorActivity extends AppCompatActivity {
     }
 
     private void filmgrainEffect() {
+        imageWidth = imageBitmap.getWidth();
+        imageHeight = imageBitmap.getHeight();
+
         final int colorMax = 0xff;
 
         int[] pixels = new int[imageWidth * imageHeight];
@@ -304,6 +387,152 @@ public class EditorActivity extends AppCompatActivity {
         fgBitmap.setPixels(pixels, 0, imageWidth, 0, 0, imageWidth, imageHeight);
 
         imageBitmap = fgBitmap;
+        imageView.setImageBitmap(imageBitmap);
+    }
+
+    private void invertEffect() {
+        imageWidth = imageBitmap.getWidth();
+        imageHeight = imageBitmap.getHeight();
+
+        Bitmap invBitmap = Bitmap.createBitmap(imageWidth, imageHeight, imageBitmap.getConfig());
+
+        int a, r, g, b;
+        int pixel;
+
+        for (int x = 0; x < imageWidth; x++) {
+            for (int y = 0; y < imageHeight; y++) {
+                pixel = imageBitmap.getPixel(x, y);
+                a = Color.alpha(pixel);
+                r = 255 - Color.red(pixel);
+                g = 255 - Color.green(pixel);
+                b = 255 - Color.blue(pixel);
+
+                invBitmap.setPixel(x, y, Color.argb(a, r, g, b));
+            }
+        }
+
+        imageBitmap = invBitmap;
+        imageView.setImageBitmap(imageBitmap);
+    }
+
+    private void sepiaEffect() {
+        imageWidth = imageBitmap.getWidth();
+        imageHeight = imageBitmap.getHeight();
+
+        Bitmap sepiaBitmap = Bitmap.createBitmap(imageWidth, imageHeight, imageBitmap.getConfig());
+
+        final double red = 0.3;
+        final double green = 0.59;
+        final double blue = 0.11;
+
+        int a, r, g, b;
+        int pixel;
+
+        for (int x = 0; x < imageWidth; x++) {
+            for (int y = 0; y < imageHeight; y++) {
+                pixel = imageBitmap.getPixel(x, y);
+
+                a = Color.alpha(pixel);
+                r = Color.red(pixel);
+                g = Color.green(pixel);
+                b = Color.blue(pixel);
+
+                b = g = r = (int) (red * r + green * g + blue * b);
+
+                r += 200 * red;
+                if (r > 255) {r = 255;}
+
+                sepiaBitmap.setPixel(x, y, Color.argb(a, r, g, b));
+            }
+        }
+
+        imageBitmap = sepiaBitmap;
+        imageView.setImageBitmap(imageBitmap);
+    }
+
+    private void changeBrightness(double value) {
+        imageWidth = imageBitmap.getWidth();
+        imageHeight = imageBitmap.getHeight();
+
+        Bitmap newBitmap = Bitmap.createBitmap(imageWidth, imageHeight, imageBitmap.getConfig());
+
+        int a, r, g, b;
+        int pixel;
+
+        for (int x = 0; x < imageWidth; x++) {
+            for (int y = 0; y < imageHeight; y++) {
+                pixel = imageBitmap.getPixel(x, y);
+                a = Color.alpha(pixel);
+                r = Color.red(pixel);
+                g = Color.green(pixel);
+                b = Color.blue(pixel);
+
+                r += value;
+                if (r < 0) {
+                    r = 0;
+                } else if (r > 255) {
+                    r = 255;
+                }
+                if (g < 0) {
+                    g = 0;
+                } else if (g > 255) {
+                    g = 255;
+                }
+                if (b < 0) {
+                    b = 0;
+                } else if (b > 255) {
+                    b = 255;
+                }
+
+                newBitmap.setPixel(x, y, Color.argb(a, r, g, b));
+            }
+        }
+
+        imageBitmap = newBitmap;
+        imageView.setImageBitmap(imageBitmap);
+    }
+
+    private void changeContrast(double value) {
+        imageWidth = imageBitmap.getWidth();
+        imageHeight = imageBitmap.getHeight();
+
+        Bitmap newBitmap = Bitmap.createBitmap(imageWidth, imageHeight, imageBitmap.getConfig());
+
+        int a, r, g, b;
+        int pixel;
+
+        double contrast = Math.pow((100 + value) / 100 , 2);
+
+        for (int x = 0; x < imageWidth; x++) {
+            for (int y = 0; y < imageHeight; y++) {
+                pixel = imageBitmap.getPixel(x, y);
+                a = Color.alpha(pixel);
+                r = Color.red(pixel);
+                r = (int) (((((r / 255.0) - 0.5) * contrast) + 0.5) * 255.0);
+                if (r < 0) {
+                    r = 0;
+                } else if (r > 255) {
+                    r = 255;
+                }
+                g = Color.green(pixel);
+                g = (int) (((((g / 255.0) - 0.5) * contrast) + 0.5) * 255.0);
+                if (g < 0) {
+                    g = 0;
+                } else if (g > 255) {
+                    g = 255;
+                }
+                b = Color.blue(pixel);
+                b = (int) (((((b / 255.0) - 0.5) * contrast) + 0.5) * 255.0);
+                if (b < 0) {
+                    b = 0;
+                } else if (b > 255) {
+                    b = 255;
+                }
+                newBitmap.setPixel(x, y, Color.argb(a, r, g, b));
+            }
+        }
+
+        imageBitmap = newBitmap;
         imageView.setImageBitmap(imageBitmap);
     }
 }
