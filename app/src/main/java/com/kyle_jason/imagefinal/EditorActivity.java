@@ -4,7 +4,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.drawable.ColorDrawable;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,8 +17,10 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -27,11 +31,14 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Random;
 
 public class EditorActivity extends AppCompatActivity {
 
     private ImageView imageView;
     private Bitmap imageBitmap;
+    private int imageWidth;
+    private int imageHeight;
     private String photoPath;
     private final int CROP_REQUEST_CODE = 1;
 
@@ -52,6 +59,9 @@ public class EditorActivity extends AppCompatActivity {
         imageBitmap = BitmapFactory.decodeFile(imagePath);
         setImageOrientation(imagePath);
         imageView.setImageBitmap(imageBitmap);
+
+        imageWidth = imageBitmap.getWidth();
+        imageHeight = imageBitmap.getHeight();
     }
 
     private void setImageOrientation(String fileName) {
@@ -103,7 +113,7 @@ public class EditorActivity extends AppCompatActivity {
                 cropImage();
                 return true;
             case 1:
-                // show filter dialog
+                showFilterDialog();
                 return true;
             case 2:
                 Bitmap bitmap = imageBitmap;
@@ -185,6 +195,34 @@ public class EditorActivity extends AppCompatActivity {
         return Uri.parse(path);
     }
 
+    private void showFilterDialog() {
+        LayoutInflater inflater = getLayoutInflater();
+        View view = inflater.inflate(R.layout.dialog_filter_picker, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(view);
+        builder.setCancelable(true);
+        final AlertDialog filterPickerDialog = builder.create();
+        filterPickerDialog.show();
+        filterPickerDialog.getWindow().setBackgroundDrawable(new ColorDrawable(
+                Color.TRANSPARENT));
+        filterPickerDialog.findViewById(R.id.film_grain).
+                setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        filterPickerDialog.dismiss();
+                        filmgrainEffect();
+                    }
+                });
+        filterPickerDialog.findViewById(R.id.black_white).
+                setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        filterPickerDialog.dismiss();
+                        grayscaleEffect();
+                    }
+                });
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CROP_REQUEST_CODE && resultCode == RESULT_OK) {
@@ -211,5 +249,61 @@ public class EditorActivity extends AppCompatActivity {
             }
         });
         builder.show();
+    }
+
+    private void grayscaleEffect() {
+        final double gsRed = 0.299;
+        final double gsBlue = 0.587;
+        final double gsGreen = 0.114;
+
+        Bitmap gsBitmap = Bitmap.createBitmap(imageWidth, imageHeight, imageBitmap.getConfig());
+
+        int a, r, g, b;
+        int pixel;
+
+
+        for (int x = 0; x < imageWidth; x++) {
+            for (int y = 0; y < imageHeight; y++) {
+                pixel = imageBitmap.getPixel(x, y);
+                a = Color.alpha(pixel);
+                r = Color.red(pixel);
+                g = Color.green(pixel);
+                b = Color.blue(pixel);
+
+                r = g = b = (int) (gsRed * r + gsGreen * g + gsBlue * b);
+
+                gsBitmap.setPixel(x, y, Color.argb(a, r, g, b));
+            }
+        }
+
+        imageBitmap = gsBitmap;
+        imageView.setImageBitmap(imageBitmap);
+    }
+
+    private void filmgrainEffect() {
+        final int colorMax = 0xff;
+
+        int[] pixels = new int[imageWidth * imageHeight];
+
+        imageBitmap.getPixels(pixels, 0, imageWidth, 0, 0, imageWidth, imageHeight);
+
+        Random random = new Random();
+
+        int index;
+
+        for (int y = 0; y < imageHeight; y++) {
+            for (int x = 0; x < imageWidth; x++) {
+                index = y * imageWidth + x;
+                int randomColor = Color.rgb(random.nextInt(colorMax), random.nextInt(colorMax),
+                        random.nextInt(colorMax));
+                pixels[index] |= randomColor;
+            }
+        }
+
+        Bitmap fgBitmap = Bitmap.createBitmap(imageWidth, imageHeight, imageBitmap.getConfig());
+        fgBitmap.setPixels(pixels, 0, imageWidth, 0, 0, imageWidth, imageHeight);
+
+        imageBitmap = fgBitmap;
+        imageView.setImageBitmap(imageBitmap);
     }
 }
