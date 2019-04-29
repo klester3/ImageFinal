@@ -1,8 +1,3 @@
 <resources>
-    <string name="app_name">Unicorns-R-Magical</string>
-    <string name="red">RED</string>
-    <string name="blue">BLUE</string>
-    <string name="green">GREEN</string>
-    <string name="test">TEST</string>
-    <string name="test2">TEST2</string>
+    <string name="app_name">Edit-A-Pic</string>
 </resources>
