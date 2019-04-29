@@ -50,6 +50,7 @@ public class EditorActivity extends AppCompatActivity {
 
     private ImageView imageView;
     private Bitmap imageBitmap;
+    private Bitmap originalBitmap;
     private int imageWidth;
     private int imageHeight;
     private String photoPath;
@@ -76,6 +77,7 @@ public class EditorActivity extends AppCompatActivity {
         imageBitmap = BitmapFactory.decodeFile(imagePath);
         setImageOrientation(imagePath);
         imageView.setImageBitmap(imageBitmap);
+        originalBitmap = imageBitmap;
 
         pref = getApplicationContext().getSharedPreferences("MyPref", 0);
         editor = pref.edit();
@@ -122,7 +124,8 @@ public class EditorActivity extends AppCompatActivity {
         menu.add(0, 2, 0, "Brightness");
         menu.add(0, 3, 0, "Contrast");
         menu.add(0, 4, 0, "Rotate 90");
-        menu.add(0, 5, 0, "Save");
+        menu.add(0, 5, 0, "Restore");
+        menu.add(0, 6, 0, "Save");
 
         return true;
     }
@@ -143,6 +146,10 @@ public class EditorActivity extends AppCompatActivity {
                 showContrastDialog();
                 return true;
             case 5:
+                imageBitmap = originalBitmap;
+                imageView.setImageBitmap(imageBitmap);
+                return true;
+            case 6:
                 Bitmap bitmap = imageBitmap;
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss",
                         Locale.US);
