@@ -3,6 +3,7 @@ package com.kyle_jason.imagefinal;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Environment;
 import android.support.v4.view.PagerAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,6 +17,8 @@ public class CustomPagerAdapter extends PagerAdapter {
 
     private Context mContext;
     LayoutInflater mLayoutInflater;
+    File[] allImages = new File[0];
+    int length;
 
     public CustomPagerAdapter(Context context) {
         mContext = context;
@@ -24,23 +27,25 @@ public class CustomPagerAdapter extends PagerAdapter {
 
     @Override
     public Object instantiateItem(ViewGroup collection, int position) {
-        File dir = new File("/sdcard/SlideFile/");
-        File[] allImages = dir.listFiles();
+
+        File slideFile = new File(Environment.getExternalStorageDirectory() + "/SlideFile");
+
+        if(slideFile.exists()) {
+            File dir = new File("/sdcard/SlideFile/");
+            allImages = dir.listFiles();
+        }
 
         View itemView = mLayoutInflater.inflate(R.layout.view_image1, collection, false);
 
         ImageView imageView = (ImageView) itemView.findViewById(R.id.imageView);
 
-        Log.i("Kyle", "allImages length " + allImages.length);
+        Log.i("Kyle", "position " + position);
 
-        for(int i = 0; i < allImages.length; i++){
-            if((allImages[i].exists())) {
-                Bitmap myBitmap = BitmapFactory.decodeFile(allImages[i].getAbsolutePath());
+            if(position < allImages.length) {
+                Log.i("Kyle", "allImages " + allImages[position]);
+                Bitmap myBitmap = BitmapFactory.decodeFile(allImages[position].getAbsolutePath());
                 imageView.setImageBitmap(myBitmap);
-
-                Log.i("Kyle", "allImages " + allImages[i]);
             }
-        }
 
         collection.addView(itemView);
         return itemView;
@@ -53,7 +58,8 @@ public class CustomPagerAdapter extends PagerAdapter {
 
     @Override
     public int getCount() {
-        return ModelObject.values().length;
+        Log.i("Kyle", "allImages length " + allImages.length);
+        return 6;
     }
 
     @Override

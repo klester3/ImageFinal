@@ -118,7 +118,14 @@ public class DrawActivity extends AppCompatActivity implements SeekBar.OnSeekBar
                 if (!dir.exists()) {
                     dir.mkdirs();
                 }
+                File slideFile = new File(Environment.getExternalStorageDirectory() + "/SlideFile");
+                if (!slideFile.exists()) {
+                    File wallpaperDirectory = new File("/sdcard/SlideFile/");
+                    wallpaperDirectory.mkdirs();
+                }
+
                 File file = new File(filepath + File.separator + filename);
+                File slideShowFile = new File(new File("/sdcard/SlideFile/"), filename);
                 FileOutputStream fileOutputStream;
                 try {
                     file.createNewFile();
@@ -127,6 +134,18 @@ public class DrawActivity extends AppCompatActivity implements SeekBar.OnSeekBar
                     fileOutputStream.flush();
                     fileOutputStream.close();
                     Toast.makeText(getApplicationContext(), "Drawing Saved", Toast.LENGTH_LONG)
+                            .show();
+                } catch (Exception e) {
+                    Toast.makeText(getApplicationContext(), "Error Saving", Toast.LENGTH_LONG)
+                            .show();
+                    Log.i("IMG_ERROR", e.getMessage());
+                }
+                try {
+                    fileOutputStream = new FileOutputStream(slideShowFile);
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+                    fileOutputStream.flush();
+                    fileOutputStream.close();
+                    Toast.makeText(getApplicationContext(), "Image Saved", Toast.LENGTH_LONG)
                             .show();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Error Saving", Toast.LENGTH_LONG)

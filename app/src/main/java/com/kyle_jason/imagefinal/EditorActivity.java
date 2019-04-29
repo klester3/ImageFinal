@@ -1,7 +1,9 @@
 package com.kyle_jason.imagefinal;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -24,10 +26,15 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -41,6 +48,10 @@ public class EditorActivity extends AppCompatActivity {
     private int imageHeight;
     private String photoPath;
     private final int CROP_REQUEST_CODE = 1;
+
+    private SharedPreferences.Editor editor;
+    private SharedPreferences pref;
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +70,9 @@ public class EditorActivity extends AppCompatActivity {
         imageBitmap = BitmapFactory.decodeFile(imagePath);
         setImageOrientation(imagePath);
         imageView.setImageBitmap(imageBitmap);
+
+        pref = getApplicationContext().getSharedPreferences("MyPref", 0);
+        editor = pref.edit();
 
     }
 
@@ -126,10 +140,10 @@ public class EditorActivity extends AppCompatActivity {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss",
                         Locale.US);
                 Date date = new Date();
-                int photoNum = 0;
+
+
                 String filename = "photo_" + dateFormat.format(date) + ".jpg";
-                String slideFilename = "photo_" + photoNum +".jpg";
-                photoNum ++;
+
                 String filepath = Environment.getExternalStorageDirectory().getAbsolutePath() +
                         File.separator + "DCIM" + File.separator + "ImageEditor";
                 File dir = new File(filepath);
@@ -144,7 +158,7 @@ public class EditorActivity extends AppCompatActivity {
                     wallpaperDirectory.mkdirs();
                 }
                 File file = new File(filepath + File.separator + filename);
-                File slideShowFile = new File(new File("/sdcard/SlideFile/"), slideFilename);
+                File slideShowFile = new File(new File("/sdcard/SlideFile/"), filename);
                 FileOutputStream fileOutputStream;
                 try {
                     file.createNewFile();
