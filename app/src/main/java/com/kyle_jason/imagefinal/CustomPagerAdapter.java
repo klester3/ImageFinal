@@ -34,29 +34,16 @@ public class CustomPagerAdapter extends PagerAdapter {
         Log.i("Kyle", "allImages length " + allImages.length);
 
         for(int i = 0; i < allImages.length; i++){
+            if((allImages[i].exists())) {
                 Bitmap myBitmap = BitmapFactory.decodeFile(allImages[i].getAbsolutePath());
                 imageView.setImageBitmap(myBitmap);
 
-            Log.i("Kyle", "allImages " + allImages[i]);
-
+                Log.i("Kyle", "allImages " + allImages[i]);
+            }
         }
 
-        return itemView;
-
-        /*View itemView = mLayoutInflater.inflate(R.layout.pager_item, collection, false);
-
-        ImageView imageView = (ImageView) itemView.findViewById(R.id.imageView);
-        imageView.setImageResource(mResources[position]);
-
         collection.addView(itemView);
-
         return itemView;
-
-        /*ModelObject modelObject = ModelObject.values()[position];
-        LayoutInflater inflater = LayoutInflater.from(mContext);
-        ViewGroup layout = (ViewGroup) inflater.inflate(modelObject.getLayoutResId(), collection, false);
-        collection.addView(layout);
-        return layout;*/
     }
 
     @Override
