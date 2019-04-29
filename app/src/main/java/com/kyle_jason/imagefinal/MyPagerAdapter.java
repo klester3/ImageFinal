@@ -1,3 +1,4 @@
+//code refferenced and inspired by https://www.journaldev.com/10096/android-viewpager-example-tutorial
 package com.kyle_jason.imagefinal;
 
 import android.content.Context;
@@ -13,14 +14,14 @@ import android.widget.ImageView;
 
 import java.io.File;
 
-public class CustomPagerAdapter extends PagerAdapter {
+public class MyPagerAdapter extends PagerAdapter {
 
     private Context mContext;
     LayoutInflater mLayoutInflater;
     File[] allImages = new File[0];
     int length;
 
-    public CustomPagerAdapter(Context context) {
+    public MyPagerAdapter(Context context) {
         mContext = context;
         mLayoutInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
@@ -65,12 +66,6 @@ public class CustomPagerAdapter extends PagerAdapter {
     @Override
     public boolean isViewFromObject(View view, Object object) {
         return view == object;
-    }
-
-    @Override
-    public CharSequence getPageTitle(int position) {
-        ModelObject customPagerEnum = ModelObject.values()[position];
-        return mContext.getString(customPagerEnum.getTitleResId());
     }
 
 }
