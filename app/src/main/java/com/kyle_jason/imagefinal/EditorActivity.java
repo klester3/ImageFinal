@@ -115,7 +115,8 @@ public class EditorActivity extends AppCompatActivity {
         menu.add(0, 1, 0, "Filter");
         menu.add(0, 2, 0, "Brightness");
         menu.add(0, 3, 0, "Contrast");
-        menu.add(0, 4, 0, "Save");
+        menu.add(0, 4, 0, "Rotate 90");
+        menu.add(0, 5, 0, "Save");
 
         return true;
     }
@@ -135,7 +136,7 @@ public class EditorActivity extends AppCompatActivity {
             case 3:
                 showContrastDialog();
                 return true;
-            case 4:
+            case 5:
                 Bitmap bitmap = imageBitmap;
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss",
                         Locale.US);
@@ -189,6 +190,15 @@ public class EditorActivity extends AppCompatActivity {
 
 
                 return true;
+            case 4:
+                Matrix m = new Matrix();
+                m.postRotate(90);
+                Bitmap rImageBitmap = Bitmap.createBitmap(imageBitmap, 0, 0,imageBitmap.getWidth(),
+                        imageBitmap.getHeight(), m, true);
+                imageBitmap = rImageBitmap;
+                imageView.setImageBitmap(imageBitmap);
+                return true;
+
         }
 
         return super.onOptionsItemSelected(item);
