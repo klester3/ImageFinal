@@ -1,4 +1,10 @@
 //code refferenced and inspired by https://www.journaldev.com/10096/android-viewpager-example-tutorial
+/*
+Kyle Lester
+Jason Casebier
+CS 4020
+Assignment Final
+*/
 package com.kyle_jason.imagefinal;
 
 import android.content.Context;
@@ -60,7 +66,7 @@ public class MyPagerAdapter extends PagerAdapter {
     @Override
     public int getCount() {
         Log.i("Kyle", "allImages length " + allImages.length);
-        return 6;
+        return 15; //couldnt get allImages.length to work
     }
 
     @Override

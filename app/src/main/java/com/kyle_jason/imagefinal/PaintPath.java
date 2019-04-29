@@ -1,3 +1,9 @@
+/*
+Kyle Lester
+Jason Casebier
+CS 4020
+Assignment Final
+*/
 package com.kyle_jason.imagefinal;
 
 import android.graphics.Path;
